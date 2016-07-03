@@ -16,6 +16,7 @@ class MessagesViewController: MSMessagesAppViewController {
 	
 	let baseURL = "http://dapprgames.com/pollariousURL"
 	var pollController: PollViewController?
+	var expansionHandler: (() -> Void)?
 	
 	func createLayout(from poll: Poll) -> MSMessageTemplateLayout {
 		let layout = MSMessageTemplateLayout()
@@ -81,6 +82,11 @@ class MessagesViewController: MSMessagesAppViewController {
 		
 		// Use this method to configure the extension and restore previously stored state.
 		
+		print("Pollarious became active for user \(conversation.localParticipantIdentifier) and remote users:")
+		for uuid in conversation.remoteParticipantIdentifiers {
+			print("Remote user: \(uuid)")
+		}
+		
 		showPollController(for: conversation.selectedMessage, in: conversation)
 	}
 	
@@ -126,6 +132,11 @@ class MessagesViewController: MSMessagesAppViewController {
 		
 		// Use this method to finalize any behaviors associated with the change in presentation style.
 		pollController?.tableView.reloadData()
+		
+		if presentationStyle == .expanded {
+			expansionHandler?()
+			expansionHandler = nil
+		}
 	}
 	
 	override func didSelect(_ message: MSMessage, conversation: MSConversation) {
@@ -212,6 +223,9 @@ extension MessagesViewController: UITextFieldDelegate {
 	
 	func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
 		if presentationStyle == .compact {
+			expansionHandler = {
+				textField.becomeFirstResponder() // automatically start editing once expanded
+			}
 			requestPresentationStyle(.expanded)
 		}
 		return true

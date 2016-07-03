@@ -42,7 +42,7 @@ class Poll {
 	}
 	
 	init() {
-		
+		print("New Poll Created!")
 	}
 	
 	convenience init(from items: [URLQueryItem]) {
@@ -56,6 +56,13 @@ class Poll {
 			}
 			if addOption(from: item) { continue }
 			if addVote  (from: item) { continue }
+		}
+		
+		for option in options {
+			print("Loading: Option \(option.id): \(option.name)")
+		}
+		for vote in votes {
+			print("Loading: User \(vote.key) voted for \(vote.value)")
 		}
 	}
 	

@@ -11,6 +11,7 @@ import UIKit
 class PollViewController: UITableViewController {
 	
 	weak var messagesController: MessagesViewController!
+	weak var questionField: UITextField!
 	
 	var poll: Poll!
 	var userUUID: UUID!
@@ -57,7 +58,7 @@ class PollViewController: UITableViewController {
 		if indexPath.section == 0 {
 			let cell = tableView.dequeueReusableCell(withIdentifier: "TitleCell")!
 			
-			let questionField = cell.viewWithTag(10) as! UITextField
+			questionField = cell.viewWithTag(10) as! UITextField
 			questionField.text = poll.question
 			
 			return cell
@@ -71,6 +72,7 @@ class PollViewController: UITableViewController {
 			return tableView.dequeueReusableCell(withIdentifier: "AddCell")!
 		}
 		let option = poll.options[indexPath.row]
+		print("User \(userUUID) pressed on option \(option.id): \(option.name)")
 		
 		let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell")!
 		let numLabel = cell.viewWithTag(10) as? UILabel
@@ -102,7 +104,12 @@ class PollViewController: UITableViewController {
 		defer {
 			tableView.deselectRow(at: indexPath, animated: true)
 		}
-		guard indexPath.section == 1 else {
+		if indexPath.section == 0 {
+			questionField.becomeFirstResponder()
+			return
+		}
+		if indexPath.section == 2 {
+			addPressed()
 			return
 		}
 		if indexPath.row == poll.options.count {
@@ -151,10 +158,6 @@ class PollViewController: UITableViewController {
 extension PollViewController: UITextFieldDelegate {
 	
 	func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-		if messagesController.presentationStyle == .compact {
-			messagesController.requestPresentationStyle(.expanded)
-			return false
-		}
-		return true
+		return messagesController.textFieldShouldBeginEditing(textField)
 	}
 }
